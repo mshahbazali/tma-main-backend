@@ -1,6 +1,8 @@
 const express = require('express')
 require('./db/connect')
 const cors = require('cors')
+
+
 const port = process.env.PORT || 5000
 const app = express();
 app.use(cors())
@@ -33,6 +35,11 @@ app.use("/workspace/get-user/forsendRequest",require('./routers/workspace/getUse
 app.use("/workspace/setRecent" ,require('./routers/workspace/recentWorkspace'))
 app.use("/workspace/get/recent",require('./routers/workspace/getRecentWorkSpaces'))
 app.use("/workspace/task/delete",require('./routers/tasks/deleteTask'))
+app.use('/auth/deactivate-acount',require('./routers/authentication/deactivateAcount'))
+app.use('/workspace/leave',require('./routers/workspace/leaveWorkspace'))
+app.use('/workspace/getUsers-fortag',require('./routers/tasks/getUsersFotTag'))
+app.use('/user/forgot-password',require('./routers/authentication/forgotPassword'))
+app.use('/user/reset-password',require('./routers/authentication/resetPassword'))
 app.use(register)
 app.use(resetPassword)
 app.use(createWorkspace)

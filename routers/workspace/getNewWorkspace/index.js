@@ -13,27 +13,12 @@ const { v4: uuidv4 } = require('uuid');
 
 router.post("/", async (req, res) => {
     try {
-        const userId = req.body.userId
-        const idString = userId.toString()
-        const user = await authSchema.findOne({_id : userId})
-        const allWorkSpaces = await workSpaceSchema.find()
-        const userWorkspace = user.workspace
-        var newWorkSpaces = []
-        for (var i = 0 ; i < allWorkSpaces.length ; i++){
-            var adminName = await authSchema.findOne({_id : allWorkSpaces[i].adminId})
-            allWorkSpaces[i].admin = adminName.username
-            allWorkSpaces[i].adminImg = adminName.img
-            const workSpaceUsers  = allWorkSpaces[i].users
-            for (var j = 0 ; j < workSpaceUsers.length ; j++){
-                if(workSpaceUsers[j].toString() === idString){
-                    console.log("Alreadt added")
-                    break;
-                }else{
-                    newWorkSpaces.push(allWorkSpaces[i])
-                }
-            }   
+        const workspace = await workSpaceSchema.find()
+        const flip = []
+        for(var i = 0 ; i < workspace.length ; i++){
+            flip.unshift(workspace[i])
         }
-        res.send(newWorkSpaces) 
+        res.send(flip) 
     }
 
     catch (e) {

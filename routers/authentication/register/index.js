@@ -46,12 +46,12 @@ var upload = multer({
 
 router.post("/register", async (req, res) => {
   try {
+    const { email } = req.body
     const user = await authSchema.findOne({ email: req.body.email });
     if (user) {
       res.status(202).send('The email already exist')
     } else {
 
-      const { email } = req.body
 
       const otp = Math.floor(1000 + Math.random() * 9000);
       const securePass = await bcrypt.hash(req.body.password, 10)
@@ -86,11 +86,11 @@ router.post("/register", async (req, res) => {
           });
 
           setTimeout(async () => {
-            const user = authSchema.findOne({email:email})
+            const user = await authSchema.findOne({email:req.body.email})
             const _id = user._id
             req.body.otp = null;
-            const updateauth = authSchema.findByIdAndUpdate(_id , req.body)
-          }, 50000);
+            const updateauth = await authSchema.findByIdAndUpdate(_id , req.body)
+          }, 500000);
         })
       res.send(req.body)
     }
@@ -136,16 +136,16 @@ router.post("/verify", async (req, res) => {
 
 
 
-
 router.post("/resend", async (req, res) => {
   try {
-    let user = await authSchema.findOne({ id: req.body.id });
+    var user = await authSchema.findOne({ email: req.body.id });
     if (!user) {
       return res.status(202).send({ message: 'User Not Found' });
     } else {
-      const _id = user._id
+      var _id = user._id
       const otp = Math.floor(1000 + Math.random() * 9000);
-      req.body.otp = otp
+      user.otp = otp;
+      const updateUser = await authSchema.findByIdAndUpdate(_id , user)
       var transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -155,7 +155,7 @@ router.post("/resend", async (req, res) => {
       });
       var mailOptions = {
         from: 'trello975@gmail.com',
-        to: req.body.email,
+        to: req.body.id,
         subject: 'OTP',
         text: `Please enter ${otp} in your Trello app to verify your acount`
       };
@@ -163,17 +163,17 @@ router.post("/resend", async (req, res) => {
         if (error) {
           console.log(error);
         } else {
-          console.log('Email sent: ' + info.response);
+          console.log(`Email sent to: ${req.body.id} ` + info.response);
         }
 
       });
 
       setTimeout(async () => {
-        const user = authSchema.findOne({email:email})
+        const user = await authSchema.findOne({email:req.body.id})
         const _id = user._id
         req.body.otp = null;
-        const updateauth = authSchema.findByIdAndUpdate(_id , req.body)
-      }, 50000);
+        const updateauth = await authSchema.findByIdAndUpdate(_id , req.body)
+      }, 30000);
 
 
 
